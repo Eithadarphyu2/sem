@@ -1,1 +1,1 @@
-This is a README.md.
+![workflow](https://github.com/<Eithadarphyu2>/<sem>/actions/workflows/main.yml/badge.svg)
