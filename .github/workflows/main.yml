@@ -8,88 +8,97 @@ jobs:
   UnitTests:
     name: Unit Tests
     runs-on: ubuntu-22.04
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v5
         with:
           submodules: recursive
 
-      - name: Set up JDK 17
+      - name: Set up Java
         uses: actions/setup-java@v5
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          distribution: temurin
+          java-version: 17
 
-      - name: Unit Tests
+      - name: Run unit tests
         run: mvn -Dtest=com.napier.sem.AppTest test
 
   IntegrationTests:
-    name: Integration Tests and CodeCov
+    name: Integration Tests
     runs-on: ubuntu-22.04
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v5
         with:
           submodules: recursive
 
-      - name: Set up JDK 17
+      - name: Set up Java
         uses: actions/setup-java@v5
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          distribution: temurin
+          java-version: 17
+
+      - name: Build database image
+        run: docker build ./db -t employees
 
       - name: Start database container
-        run: |
-          docker build -t database ./db
-          docker run --name employees -dp 33060:3306 database
+        run: docker run --name employees -d -p 33060:3306 employees
 
-      - name: Wait for database
+      - name: Wait for database to be ready
         run: |
           for i in {1..30}; do
             if docker exec employees mysqladmin ping -h 127.0.0.1 -uroot -pexample --silent; then
               echo "Database is ready"
               exit 0
             fi
+            echo "Waiting for database..."
             sleep 2
           done
+
+          echo "Database failed to start"
           docker logs employees
           exit 1
 
-      - name: Integration Tests
+      - name: Run integration tests
         run: mvn -Dtest=com.napier.sem.AppIntegrationTest test
 
-      - name: Upload Codecov report
-        if: always()
+      - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           files: ./target/site/jacoco/jacoco.xml
           flags: IntegrationTests
           fail_ci_if_error: false
           verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Stop and remove database
+      - name: Clean up database container
         if: always()
         run: |
           docker stop employees || true
           docker rm employees || true
-          docker image rm database || true
+          docker rmi employees || true
 
   build:
-    name: Build and Start Using docker compose
+    name: Build
     runs-on: ubuntu-22.04
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v5
         with:
           submodules: recursive
 
-      - name: Set up JDK 17
+      - name: Set up Java
         uses: actions/setup-java@v5
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          distribution: temurin
+          java-version: 17
 
-      - name: Package and Run docker compose
-        run: |
-          mvn package -DskipTests
-          docker compose up --abort-on-container-exit
+      - name: Build application
+        run: mvn package -DskipTests
+
+      - name: Run Docker Compose
+        run: docker compose up --abort-on-container-exit
