@@ -1,7 +1,8 @@
-FROM eclipse-temurin:26-jre
 
-COPY ./target/seMethods-v0.1.0.4-jar-with-dependencies.jar /tmp
+FROM eclipse-temurin:17-jdk
 
-WORKDIR /tmp
+WORKDIR /app
 
-ENTRYPOINT ["java", "-jar", "seMethods-v0.1.0.4-jar-with-dependencies.jar"]
+COPY target/sem.jar sem.jar
+
+ENTRYPOINT ["java", "-jar", "sem.jar", "db:3306", "30000"]
