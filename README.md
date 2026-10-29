@@ -10,3 +10,8 @@
 * Develop Build Status ![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/Eithadarphyu2/sem/main.yml?branch=develop&style=flat-square)
 * License [![LICENSE](https://img.shields.io/github/license/Eithadarphyu2/sem.svg?style=flat-square)](https://github.com/Eithadarphyu2/sem/blob/master/LICENSE)
 * Release [![Releases](https://img.shields.io/github/release/Eithadarphyu2/sem/all.svg?style=flat-square)](https://github.com/Eithadarphyu2/sem/releases)
+
+## Code Coverage
+
+[![codecov](https://codecov.io/gh/Eithadarphyu2/sem/branch/master/graph/badge.svg)](https://codecov.io/gh/Eithadarphyu2/sem)
+[![codecov](https://codecov.io/gh/Eithadarphyu2/sem/branch/develop/graph/badge.svg)](https://codecov.io/gh/Eithadarphyu2/sem)
